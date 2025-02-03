@@ -1,0 +1,571 @@
+html, body {
+        overflow-x: hidden; /* Prevent horizontal scroll on entire page */
+        width: 100%; /* Ensure full width containment */
+}
+        
+    /* Remove duplicate style attribute from header */
+div[class="header flex-container justify-between pad-t-md pad-b-xl bg-black-400"] {
+        margin: auto; /* Only keep one style attribute */
+}
+
+.add-icon {
+    font-size: 24px;
+    color: #007AFF;
+    margin-left: 20%;
+    cursor: pointer;
+    padding: 5px 10px;
+}
+
+
+.add_scan_select{
+    color: #2b91ff;
+    cursor: pointer;
+    font-size: small;
+}
+
+.placeholder_container {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100vh;
+    display: flex;
+    justify-content: center;
+    align-items: center;
+    z-index: 2;
+    pointer-events: auto;
+    background-color: rgb(0, 0, 0);
+}
+
+.placeholder {
+    margin-top: -20%;
+    display: flex;
+    flex-direction: column;
+    gap: 15px;
+    color: white;
+    text-align: center;
+}
+
+.placeholder .action-text {
+    display: inline-block;
+    margin-top: 10px;
+}
+
+.scan_card_options {
+    position: fixed;
+    bottom: -100%;
+    left: 0;
+    width: 100%;
+    background-color: rgba(43, 43, 43, 0.95);
+    padding: 15px;
+    border-radius: 10px 10px 0 0;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+    text-align: center;
+    opacity: 0;
+    transition: bottom 0.3s ease, opacity 0.3s ease;
+    z-index: 1000;
+    display: none;
+}
+
+.scan-button svg {
+    width: 24px;
+    height: 24px;
+    color: white;
+}
+
+.scan-button:active {
+    transform: scale(0.95);
+}
+
+.scan-button {
+    position: fixed;
+    bottom: 20px;
+    right: 20px;
+    width: 56px;
+    height: 56px;
+    background-color: #007AFF;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    box-shadow: 0 2px 10px rgba(0, 0, 0, 0.3);
+    z-index: 99;
+    cursor: pointer;
+    transition: transform 0.2s ease;
+}
+
+.custom-alert {
+    position: fixed;
+    bottom: 0;
+    left: 50%;
+    transform: translateX(-50%);
+    background-color: rgba(23, 23, 23, 0.521);
+    color: #fff;
+    padding: 1em;
+    border-radius: 0.5em;
+    border-color: white;
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+    text-align: left;
+    font-weight: 400;
+    width: 90%; /* Adjust this width as needed */
+    max-width: 400px;
+    opacity: 0; /* Start hidden */
+    transition: opacity 0.6s ease, bottom 0.6s ease; /* Smooth transition with longer duration */
+    margin-bottom: 5px;
+}
+
+.hidden {
+    display: none;
+}
+.addCardForm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transform: translateX(100%);  /* Start positioned outside the viewport */
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);  /* Smooth easing */
+    z-index: 1000;
+    visibility: hidden;  /* Hide it initially */
+}
+
+.addCardForm.active {
+    transform: translateX(0);  /* Slide to natural position */
+    visibility: visible;
+}
+
+/* Dynamic Fields Styles */
+.dynamic-field {
+    display: flex;
+    align-items: center;
+    justify-content: space-between; /* Ensures elements fit in one line */
+    width: 100%; /* Prevents overflow */
+    max-width: 100%; /* Ensures it doesn't go beyond screen width */
+    padding: 12px 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    margin-bottom: 8px;
+    overflow: hidden; /* Hides anything that might exceed width */
+    box-sizing: border-box; /* Ensures padding doesn't increase size */
+}
+
+.field-label {
+    display: flex;
+    align-items: center;
+    color: #007AFF;
+    min-width: 100px;
+    cursor: pointer;
+}
+
+.field-label-text {
+    margin-right: 8px;
+}
+
+.field-input {
+    flex: 1; /* Allows input to take available space but not exceed */
+    background-color: transparent;
+    border: none;
+    color: white;
+    font-size: 17px;
+    padding: 0 8px;
+    min-width: 0; /* Prevents input from expanding beyond container */
+    overflow: hidden;
+    text-overflow: ellipsis; /* Ensures text stays within box */
+    white-space: nowrap;
+}
+
+
+.field-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+.remove-field {
+    color: #FF3B30;
+    cursor: pointer;
+    font-size: 20px;
+    font-weight: bold;
+    flex-shrink: 0; /* Prevents it from growing or shrinking */
+    width: 30px; /* Fixed width to avoid shifting */
+    text-align: center; /* Centers the minus sign */
+}
+
+
+
+#phone-fields-container,
+#email-fields-container,
+#website-fields-container,
+#address-fields-container {
+    margin-bottom: 8px;
+}
+
+.type-dropdown {
+    position: fixed;
+    background-color: rgba(28, 28, 28, 0.95);
+    border-radius: 13px;
+    box-shadow: 0 4px 12px rgba(0, 0, 0, 0.3);
+    z-index: 1000;
+    width: 90%;
+    max-width: 400px;
+    max-height: 80vh;
+    overflow-y: auto;
+    left: 50%;
+    transform: translateX(-50%);
+}
+
+.dropdown-title {
+    color: rgb(78, 90, 90);
+    font-size: 13px;
+    padding: 16px;
+    margin: 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.dropdown-content {
+    padding: 8px 0;
+}
+
+.dropdown-item {
+    padding: 12px 16px;
+    color: white;
+    cursor: pointer;
+}
+
+.dropdown-item:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+.chevron-icon {
+    width: 12px;
+    height: 12px;
+    margin-left: 4px;
+}
+
+.dynamic-fields {
+    margin-top: 8px;
+}
+
+.addCardForm {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 100%;
+    height: 100%;
+    background-color: black;
+    transform: translateX(100%);
+    transition: transform 0.3s cubic-bezier(0.4, 0.0, 0.2, 1);
+    z-index: 1000;
+    visibility: hidden;
+    overflow-y: auto;
+}
+
+.form-container {
+    padding: 0;
+    height: 100%;
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    padding-bottom: 32px; /* Add padding at the bottom */
+}
+
+/* Header */
+.heading {
+    display: flex;
+    justify-content: space-between;
+    align-items: center;
+    padding: 16px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    background-color: rgba(28, 28, 28, 0.92);
+    position: sticky;
+    top: 0;
+    z-index: 10;
+}
+
+.form-content {
+    flex: 1;
+    padding: 0 16px;
+    overflow-y: auto;
+}
+
+.cancel_btn, .save_btn {
+    background: none;
+    border: none;
+    color: #007AFF;
+    font-size: 17px;
+    padding: 0;
+    outline: none;
+}
+
+.cancel_btn:focus, .save_btn:focus{
+    outline: none;
+    box-shadow: none;
+}
+
+.title {
+    font-size: 17px;
+    font-weight: 600;
+    margin: 0;
+}
+
+/* Profile Image */
+.profile-image {
+    display: flex;
+    justify-content: center;
+    padding: 32px 0;
+}
+
+.add-photo {
+    width: 100px;
+    height: 100px;
+    border-radius: 50%;
+    background-color: #007AFF;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+}
+
+.plus-icon {
+    color: white;
+    font-size: 40px;
+}
+
+/* Form Fields */
+.form-fields {
+    margin: 20px 16px;
+}
+
+.form-input {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+    color: white;
+    padding: 12px 16px;
+    font-size: 17px;
+}
+
+.form-input::placeholder {
+    color: rgba(255, 255, 255, 0.6);
+}
+
+/* Action Buttons */
+.action-buttons {
+    margin-top: 20px 16px;
+}
+
+.action-btn {
+    width: 100%;
+    background-color: transparent;
+    border: none;
+    color: white;
+    padding: 12px 16px;
+    text-align: left;
+    font-size: 17px;
+    display: flex;
+    align-items: center;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.plus-circle {
+    color: #007AFF;
+    font-size: 24px;
+    margin-right: 12px;
+}
+
+/* Notes */
+.notes-section {
+    margin-top: 24px;
+    margin-bottom: 24px;
+    padding: 0 16px;
+}
+
+
+.notes-input {
+    width: 100%;
+    background-color: rgba(255, 255, 255, 0.05);
+    border: 1px solid rgba(255, 255, 255, 0.1);
+    border-radius: 8px;
+    color: white;
+    padding: 12px 16px;
+    font-size: 17px;
+    min-height: 100px;
+    resize: vertical;
+}
+
+/* Remove default input styling */
+input:focus {
+    outline: none;
+}
+
+/* Remove default button styling */
+/* button {
+    cursor: pointer;
+} */
+
+.confirmation_box {
+    position: fixed;
+    top: 50%;
+    left: 50%;
+    transform: translate(-50%, -50%);
+    width: 85%;
+    max-width: 320px;
+    background-color: rgba(30, 30, 30, 0.95);
+    border-radius: 12px;
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.3);
+    z-index: 1100;
+    overflow: hidden;
+    border: rgba(255, 255, 255, 0.1);
+    display: none;
+}
+
+.confirmation_box_content {
+    padding-top: 24px;
+    text-align: center;
+}
+
+.confirmation_box_content h1 {
+    color: white;
+    font-size: 18px;
+    margin-bottom: 12px;
+}
+
+.confirmation_text {
+    color: rgba(255, 255, 255, 0.7);
+    font-size: 16px;
+    padding-bottom: 20px;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirmation_btns {
+    display: flex;
+    width: 100%;
+}
+
+.confirm_no_btn, .confirm_yes_btn {
+    flex: 1;
+    background: none;
+    border: none;
+    padding: 15px;
+    color: #007AFF;
+    font-size: 16px;
+    outline: none;
+    transition: background-color 0.3s ease;
+}
+
+.confirm_no_btn {
+    border-right: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.confirm_no_btn:hover, .confirm_yes_btn:hover {
+    background-color: rgba(255, 255, 255, 0.05);
+}
+
+.confirm_no_btn:active, .confirm_yes_btn:active {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Add these styles */
+.cards-container {
+    padding: 10px;
+    margin-bottom: 60px;
+}
+
+.card-preview {
+    background: rgba(42, 42, 42, 0.95);
+    margin: 10px;
+    padding: 15px;
+    border-radius: 8px;
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    cursor: pointer;
+}
+
+.main_content {
+    position: relative;
+    z-index: 3;
+}
+
+.card-details {
+    position: fixed;
+    top: 0;
+    left: 100%;
+    width: 100%;
+    height: 100%;
+    background: #1a1a1a;
+    transition: transform 0.3s ease;
+    z-index: 1000;
+}
+
+.card-info {
+    flex: 1;
+}
+
+.card-info h3 {
+    color: white;
+    margin: 0 0 5px 0;
+}
+
+.card-info p {
+    color: rgba(255, 255, 255, 0.7);
+    margin: 0;
+}
+
+
+.card-details.active {
+    transform: translateX(-100%);
+}
+
+.details-header {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    padding: 15px;
+    background: #2a2a2a;
+}
+
+.initial-circle {
+    width: 50px;
+    height: 50px;
+    background: #10A1FF;
+    border-radius: 25px;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    color: white;
+    font-weight: bold;
+}
+.details-section {
+    padding: 20px;
+    color: white;
+}
+
+.contact-section {
+    margin: 20px 0;
+}
+
+.contact-section h4 {
+    color: #007AFF;
+    margin-bottom: 10px;
+}
+
+.contact-item {
+    padding: 10px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.contact-item .label {
+    color: rgba(255, 255, 255, 0.6);
+    margin-right: 10px;
+}
+
+.back-btn, .delete-btn {
+    background: none;
+    border: none;
+    color: #007AFF;
+    padding: 10px;
+    font-size: 16px;
+}
+
+.delete-btn {
+    color: #FF3B30;
+}

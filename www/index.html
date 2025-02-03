@@ -1,0 +1,208 @@
+<!DOCTYPE html>
+<!--
+    Licensed to the Apache Software Foundation (ASF) under one
+    or more contributor license agreements.  See the NOTICE file
+    distributed with this work for additional information
+    regarding copyright ownership.  The ASF licenses this file
+    to you under the Apache License, Version 2.0 (the
+    "License"); you may not use this file except in compliance
+    with the License.  You may obtain a copy of the License at
+
+    http://www.apache.org/licenses/LICENSE-2.0
+
+    Unless required by applicable law or agreed to in writing,
+    software distributed under the License is distributed on an
+    "AS IS" BASIS, WITHOUT WARRANTIES OR CONDITIONS OF ANY
+     KIND, either express or implied.  See the License for the
+    specific language governing permissions and limitations
+    under the License.
+-->
+<html>
+    <head>
+        <meta charset="utf-8">
+        <!--
+        Customize this policy to fit your own app's needs. For more guidance, please refer to the docs:
+            https://cordova.apache.org/docs/en/latest/
+        Some notes:
+            * https://ssl.gstatic.com is required only on Android and is needed for TalkBack to function properly
+            * Disables use of inline scripts in order to mitigate risk of XSS vulnerabilities. To change this:
+                * Enable inline JS: add 'unsafe-inline' to default-src
+        -->
+        <meta http-equiv="Content-Security-Policy" content="default-src * 'self' data: gap: https://ssl.gstatic.com 'unsafe-eval' 'unsafe-inline'; style-src 'self' 'unsafe-inline'; media-src *; img-src 'self' data: content:;">
+        <meta name="format-detection" content="telephone=no">
+        <meta name="msapplication-tap-highlight" content="no">
+        <meta name="viewport" content="initial-scale=1, width=device-width, viewport-fit=cover">
+        <meta name="color-scheme" content="light dark">
+        <link rel="stylesheet" href="css/kind-all.css">
+        <link rel="stylesheet" href="css/index.css">
+        <title>Business Manager</title>
+    </head>
+    <body class="bg-black">
+        <div class="app tap-highlight-none">
+            <!-- *** HEADER containing (App Name and Add Card button)*** -->
+            <div class="header flex-container justify-center pad-t-md pad-b-sm bg-black-400" style="border-bottom: 1px solid rgb(22, 22, 22);background-color: rgba(23, 23, 23, 0.521);">
+                <h1 class="text-center font-medium" style="margin-left: 28%" >Business Card Wallet</h1>
+                <span id="add_card" class="add-icon">+</span>
+            </div>
+
+            <!-- *** MAIN CONTENT containing (Card List)*** -->
+             <div class="main_content">
+
+             </div>
+
+             <!-- ***PLACEHOLDER (displays if no card has been added)*** -->
+             <div class="placeholder_container text-large">
+                <p class="placeholder font-medium text-large text-center">
+                    No business card in your wallet
+                    <span class="action-text">
+                        <span class="add_scan_select" id="scan_card">Scan here</span> or 
+                        <span class="add_scan_select" id="add_card_option">Add here</span>
+                    </span>
+                </p>
+            </div>
+
+              <!-- SCAN_CARD SELECTOR OPTIONS -->
+            <div class="scan_card_options rounded-t-lg" id="scan_card_options"  style="background-color:  rgba(43, 43, 43, 0.286);">
+                
+                <p class="text-large font-medium pad-b-lg" style="color: rgb(78, 90, 90);" >Scan Business Card</p>
+                
+                <div class="options flex-container justify-center flex-container-col align-center">
+
+                    <div class="from_gallery flex-container pad-b-lg">
+                        <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_camera" style="color:#10A1FF;">From Camera</p>
+                        </div>
+
+                    <div class="from_gallery flex-container pad-b-lg">
+                        <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_gallery" style="color:#10A1FF;">From Gallery</p>
+                    </div>
+
+                    <div class="close_scan_options flex-container" id="close_scan">
+                        <p class="text-large font-medium mar-l-sm cursor-pointer" style="color:#FF3B30;">Close</p>
+                    </div>
+                </div>
+            </div>
+             
+            
+            <!-- ***CUSTOM ALERT BOX*** -->
+             <div class="custom-alert hidden" id="custom-alert">
+                <p id="alert-text"></p>
+             </div>
+             <div id="addCardForm" class="addCardForm">
+                <div class="form-container">
+                    <!-- Header -->
+                    <div class="heading">
+                        <button class="cancel_btn" id="cancel_btn">Cancel</button>
+                        <h1 class="title">Add Card</h1>
+                        <button class="save_btn" id="save_btn">Save</button>
+                    </div>
+            
+                    <!-- Profile Image -->
+                    <div class="profile-image">
+                        <div class="add-photo">
+                            <span class="plus-icon">+</span>
+                        </div>
+                    </div>
+            
+                    <!-- Form Fields -->
+                    <div class="form-fields">
+                        <input type="text" placeholder="First Name" class="form-input" id="form-input">
+                        <input type="text" placeholder="Last Name" class="form-input" id="form-input">
+                        <input type="text" placeholder="Company" class="form-input" id="form-input">
+                        <input type="text" placeholder="Title" class="form-input" id="form-input">
+                    </div>
+            
+                    <!-- Action Buttons -->
+                    <div class="action-buttons">
+                        <div class="form-fields-section">
+                            <!-- phone field container -->
+                             <div id="phone-fields-container"></div>
+                        <button class="action-btn">
+                            <span class="plus-circle">+</span>
+                            Add Number
+                        </button>
+                        <!-- Email fields container -->
+                         <div id="email-fields-container"></div>
+                        <button class="action-btn">
+                            <span class="plus-circle">+</span>
+                            Add Email
+                        </button>
+                        <!-- Website fields container -->
+                         <div id="website-fields-container"></div>
+                        <button class="action-btn">
+                            <span class="plus-circle">+</span>
+                            Add Website
+                        </button>
+                        <!-- Address fields container -->
+                         <div id="address-fields-container"></div>
+                        <button class="action-btn">
+                            <span class="plus-circle">+</span>
+                            Add Address
+                        </button>
+                        </div>
+                    </div>
+                    <div class="dynamic-fields">
+                        <div id="phone-fields-container"></div>
+                        <div id="email-fields-container"></div>
+                        <div id="website-fields-container"></div>
+                        <div id="address-fields-container"></div>
+                    </div>
+                    <!-- Notes -->
+                    <div class="notes-section">
+                        <input type="text" placeholder="Notes" class="notes-input">
+                    </div>
+                    <div id="type-dropdown" class="type-dropdown" style="display: none;">
+                        <p class="dropdown-title">Label</p>
+                        <div class="dropdown-content">
+                            <!-- Phone Types -->
+                            <div class="dropdown-section" data-for="phone">
+                                <div class="dropdown-item" data-value="Work">Work</div>
+                                <div class="dropdown-item" data-value="Home">Home</div>
+                                <div class="dropdown-item" data-value="Main">Main</div>
+                                <div class="dropdown-item" data-value="Work Fax">Work Fax</div>
+                                <div class="dropdown-item" data-value="Home Fax">Home Fax</div>
+                                <div class="dropdown-item" data-value="Fax">Fax</div>
+                                <div class="dropdown-item" data-value="Pager">Pager</div>
+                                <div class="dropdown-item" data-value="Other">Other</div>
+                            </div>
+                            <!-- Email Types -->
+                            <div class="dropdown-section" data-for="email">
+                                <div class="dropdown-item" data-value="Work">Work</div>
+                                <div class="dropdown-item" data-value="Home">Home</div>
+                                <div class="dropdown-item" data-value="Other">Other</div>
+                            </div>
+                            <!-- Website Types -->
+                            <div class="dropdown-section" data-for="website">
+                                <div class="dropdown-item" data-value="Work">Work</div>
+                                <div class="dropdown-item" data-value="Personal">Personal</div>
+                                <div class="dropdown-item" data-value="Other">Other</div>
+                            </div>
+                            <!-- Address Types -->
+                            <div class="dropdown-section" data-for="address">
+                                <div class="dropdown-item" data-value="Work">Work</div>
+                                <div class="dropdown-item" data-value="Home">Home</div>
+                                <div class="dropdown-item" data-value="Other">Other</div>
+                            </div>
+                        </div>
+                    </div>                    
+                </div>
+            </div>
+            <div class="confirmation_box rounded-lg text-center pad-md" id="confirmation_box">
+                <div class="confirmation_box_content">
+                    <h1 class="font-medium">Save Card?</h1>
+                    <p class="confirmation_text pad-b-md">Do you want to save this card?</p>
+                    <div class="confirmation_btns flex-container">
+                        <button class="confirm_no_btn font-medium" id="confirm_no_btn">No</button>
+                        <button class="confirm_yes_btn font-medium" id="confirm_yes_btn">Yes</button>
+                    </div>
+                </div>
+            </div>
+            <div class="scan-button" id="scan_button">
+                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v4m0 0h4M4 8l4-4m-4 8v4m0 0h4m-4 0l4-4m8-4v4m0 0h-4m4 0l-4-4m4 8v4m0 0h-4m4 0l-4-4"/>
+                </svg>
+            </div>
+        </div><!--app-->
+        <script type="text/javascript" src="cordova.js"></script>
+        <script src="js/index.js"></script>
+    </body>
+</html>
