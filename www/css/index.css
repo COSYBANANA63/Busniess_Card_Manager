@@ -534,9 +534,32 @@ input:focus {
     color: white;
     font-weight: bold;
 }
+.detail-item {
+    display: flex;
+    align-items: center;
+    padding: 12px 0;
+    border-bottom: 1px solid rgba(255, 255, 255, 0.1);
+}
+
+.detail-item .icon {
+    width: 24px;
+    height: 24px;
+    margin-right: 12px;
+    fill: #007AFF;
+}
+
+.detail-item span {
+    color: white;
+}
+
 .details-section {
     padding: 20px;
     color: white;
+}
+
+.details-content {
+    overflow-y: auto;
+    max-height: calc(100vh - 60px);
 }
 
 .contact-section {
