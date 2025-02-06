@@ -1271,37 +1271,33 @@ function saveToContacts(cardId) {
                 
                 // Phone numbers
                 const phones = JSON.parse(card.phones || '[]');
-                contact.phoneNumbers = phones.map(p => 
-                    new ContactField(p.type, p.value));
+                contact.phoneNumbers = phones.map(p => new ContactField(p.type, p.value));
                 
                 // Emails
                 const emails = JSON.parse(card.emails || '[]');
-                contact.emails = emails.map(e => 
-                    new ContactField(e.type, e.value));
+                contact.emails = emails.map(e => new ContactField(e.type, e.value));
                 
                 // Addresses
                 const addresses = JSON.parse(card.addresses || '[]');
-                contact.addresses = addresses.map(a => 
-                    new ContactAddress(false, a.type, a.value));
+                contact.addresses = addresses.map(a => new ContactAddress(false, a.type, a.value));
                 
                 // Save and show feedback
                 contact.save(() => {
-                    setTimeout(() => {
-                        showAlert('Contact saved successfully');
-                    }, 500);
-                }, () => {
-                    setTimeout(() => {
-                        showAlert('Contact saved successfully');
-                    }, 500);
+                    showAlert('Contact saved successfully');
+                }, (error) => {
+                    console.error('Error saving contact:', error);
+                    showAlert('Failed to save contact');
                 });
                 
             } catch (error) {
-                setTimeout(() => {
-                    showAlert('Contact saved successfully');
-                }, 500);
+                console.error('Error creating contact:', error);
+                showAlert('Failed to create contact');
             }
+        }, (error) => {
+            console.error('Database error:', error);
+            showAlert('Failed to retrieve card from database');
         });
     });
     
-    return false; // Prevent any default button behavior
+    return false; // Prevent default button behavior
 }
