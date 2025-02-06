@@ -56,22 +56,22 @@ div[class="header flex-container justify-between pad-t-md pad-b-xl bg-black-400"
     bottom: -100%;
     left: 0;
     width: 100%;
-    background-color: rgba(43, 43, 43, 0.95);
+    background-color: rgb(23, 23, 23);  /* Solid dark background */
     padding: 15px;
     border-radius: 10px 10px 0 0;
-    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.3);
+    box-shadow: 0px -2px 10px rgba(0, 0, 0, 0.5);
     text-align: center;
-    opacity: 0;
     transition: bottom 0.3s ease, opacity 0.3s ease;
     z-index: 1000;
     display: none;
+    color: white;  /* Ensure text visibility */
 }
 
-.scan-button svg {
+/* .scan-button svg {
     width: 24px;
     height: 24px;
     color: white;
-}
+} */
 
 .scan-button:active {
     transform: scale(0.95);
@@ -83,6 +83,9 @@ div[class="header flex-container justify-between pad-t-md pad-b-xl bg-black-400"
     right: 20px;
     width: 56px;
     height: 56px;
+    color: white;
+    font-weight: bold;
+    font-size: 25px;
     background-color: #007AFF;
     border-radius: 50%;
     display: flex;
@@ -279,6 +282,12 @@ div[class="header flex-container justify-between pad-t-md pad-b-xl bg-black-400"
     top: 0;
     z-index: 10;
 }
+
+/* .header h1 {
+    margin: 0;
+    text-align: center;
+    width: 100%;
+} */
 
 .form-content {
     flex: 1;
@@ -762,7 +771,7 @@ input:focus {
 .share-container button {
     display: flex;
     align-items: center;
-    padding: 2px;
+    padding: 1px;
     background-color: #007bff;
     color: white;
     border: none;

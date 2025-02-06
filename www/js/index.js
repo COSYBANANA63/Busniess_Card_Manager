@@ -53,9 +53,9 @@ function onDeviceReady() {
         closeScanOptions();
     });
 
-    document.getElementById('add_card').addEventListener('click', function(e){
-        showAddCardForm();
-    });
+    // document.getElementById('add_card').addEventListener('click', function(e){
+    //     showAddCardForm();
+    // });
     
     document.getElementById('add_card_option').addEventListener('click', function(e){
         showAddCardForm();
@@ -74,20 +74,21 @@ function onDeviceReady() {
 
     // Remove any existing listeners
     const fromCamera = document.getElementById('from_camera');
-    const fromGallery = document.getElementById('from_gallery');
+    // const fromGallery = document.getElementById('from_gallery');
     
     fromCamera.replaceWith(fromCamera.cloneNode(true));
-    fromGallery.replaceWith(fromGallery.cloneNode(true));
+    // fromGallery.replaceWith(fromGallery.cloneNode(true));
 
-    document.getElementById('from_camera').addEventListener('click',function(){
+    document.getElementById('from_camera').textContent = 'Add Card';
+    document.getElementById('from_camera').addEventListener('click', function() {
         closeScanOptions();
-        openCamera();
+        showAddCardForm();
     });
 
-    document.getElementById('from_gallery').addEventListener('click',function(){
-        closeScanOptions()
-        openGallery();
-    });
+    // document.getElementById('from_gallery').addEventListener('click',function(){
+    //     closeScanOptions()
+    //     openGallery();
+    // });
 
     const actionButtons = document.querySelectorAll('.action-btn');
     actionButtons[0].addEventListener('click', () => addField('phone'));
@@ -370,20 +371,23 @@ function toggleScanOptions() {
         closeScanOptions();
     } else {
         scan_card.style.display = 'block';
+        scan_card.style.backgroundColor = '#000000'; // Force solid black
         setTimeout(function() {
             scan_card.style.bottom = '0';
             scan_card.style.opacity = '1';
+            scan_card.style.backgroundColor = '#000000'; // Ensure solid black after animation
         }, 10);
     }
 }
 
-function closeScanOptions(){
+function closeScanOptions() {
     var scan_card = document.getElementById('scan_card_options');
-    scan_card.style.bottom = '-100%'; // Move the element off-screen
-    scan_card.style.opacity = '0'; // Fade out
-    setTimeout(function () {
-        scan_card.style.display = 'none'; // Hide the element after animation
-    }, 300); // Ensure the element hides after the animation finishes
+    scan_card.style.bottom = '-100%';
+    scan_card.style.opacity = '1'; // Keep opacity solid
+    scan_card.style.backgroundColor = '#000000'; // Keep background solid
+    setTimeout(function() {
+        scan_card.style.display = 'none';
+    }, 300);
 }
 
 function showAlert(message) {

@@ -40,9 +40,9 @@
     <body class="bg-black">
         <div class="app tap-highlight-none">
             <!-- *** HEADER containing (App Name and Add Card button)*** -->
-            <div class="header flex-container justify-center pad-t-md pad-b-sm bg-black-400" style="border-bottom: 1px solid rgb(22, 22, 22);background-color: rgba(23, 23, 23, 0.521);">
-                <h1 class="text-center font-medium" style="margin-left: 28%" >Business Card Wallet</h1>
-                <span id="add_card" class="add-icon">+</span>
+            <div class="header pad-t-md pad-b-sm bg-black-400" style="border-bottom: 1px solid rgb(22, 22, 22);background-color: rgba(23, 23, 23, 0.521);">
+                <h1 class="text-center font-medium">Business Card Wallet</h1>
+                <!-- <span id="add_card" class="add-icon">+</span> -->
             </div>
 
             <!-- *** MAIN CONTENT containing (Card List)*** -->
@@ -69,12 +69,12 @@
                 <div class="options flex-container justify-center flex-container-col align-center">
 
                     <div class="from_gallery flex-container pad-b-lg">
-                        <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_camera" style="color:#10A1FF;">From Camera</p>
+                        <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_camera" style="color:#10A1FF;">Add Card</p>
                         </div>
 
-                    <div class="from_gallery flex-container pad-b-lg">
+                    <!-- <div class="from_gallery flex-container pad-b-lg">
                         <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_gallery" style="color:#10A1FF;">From Gallery</p>
-                    </div>
+                    </div> -->
 
                     <div class="from_gallery flex-container pad-b-lg">
                         <p class="text-large font-medium mar-l-sm cursor-pointer" id="from_contacts" style="color:#10A1FF;">From Contacts</p>
@@ -201,9 +201,10 @@
                 </div>
             </div>
             <div class="scan-button" id="scan_button">
-                <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
+                <!-- <svg xmlns="http://www.w3.org/2000/svg" fill="none" viewBox="0 0 24 24" stroke="currentColor">
                     <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v4m0 0h4M4 8l4-4m-4 8v4m0 0h4m-4 0l4-4m8-4v4m0 0h-4m4 0l-4-4m4 8v4m0 0h-4m4 0l-4-4"/>
-                </svg>
+                </svg> -->
+                <p>+</p>
             </div>
         </div><!--app-->
         <script type="text/javascript" src="cordova.js"></script>
