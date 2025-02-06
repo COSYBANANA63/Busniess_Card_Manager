@@ -13,8 +13,13 @@
   "author": "Apache Cordova Team",
   "license": "Apache-2.0",
   "devDependencies": {
+    "@red-mobile/cordova-plugin-barcodescanner": "^9.1.0",
     "cordova-android": "^13.0.0",
     "cordova-plugin-camera": "^8.0.0",
+    "cordova-plugin-compat": "^1.2.0",
+    "cordova-plugin-contacts": "^3.0.1",
+    "cordova-plugin-file": "^8.1.3",
+    "cordova-plugin-photo-library": "^2.3.1",
     "cordova-sqlite-storage": "^7.0.0"
   },
   "cordova": {
@@ -25,7 +30,18 @@
       "cordova-plugin-camera": {
         "ANDROIDX_CORE_VERSION": "1.6.+"
       },
-      "cordova-sqlite-storage": {}
+      "cordova-sqlite-storage": {},
+      "cordova-plugin-file": {
+        "ANDROIDX_WEBKIT_VERSION": "1.4.0"
+      },
+      "@red-mobile/cordova-plugin-barcodescanner": {
+        "ANDROIDX_LEGACY_SUPPORT_V4_VERSION": "1.0.0"
+      },
+      "cordova-plugin-contacts": {}
     }
+  },
+  "dependencies": {
+    "qrcode": "^1.5.4",
+    "tesseract.js": "^6.0.0"
   }
 }

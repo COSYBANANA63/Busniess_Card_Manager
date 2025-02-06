@@ -43,11 +43,11 @@ function onDeviceReady() {
     document.getElementById('scan_card').addEventListener('click', function(){
         toggleScanOptions();  
     });
-
+    
     document.getElementById('scan_button').addEventListener('click', function() {
-        console.log('Fixed scan button clicked');
         toggleScanOptions();
     });
+        
 
     document.getElementById('close_scan').addEventListener('click', function(){
         closeScanOptions();
@@ -61,17 +61,31 @@ function onDeviceReady() {
         showAddCardForm();
     });
 
+    document.getElementById('from_contacts').addEventListener('click', function(){
+        closeScanOptions();
+        pickContact();
+    });
+
     // Add cancel button listener
     document.getElementById('cancel_btn').addEventListener('click', function(e) {
         // hideAddCardForm();
         displayConfirmDialog();
     });
 
+    // Remove any existing listeners
+    const fromCamera = document.getElementById('from_camera');
+    const fromGallery = document.getElementById('from_gallery');
+    
+    fromCamera.replaceWith(fromCamera.cloneNode(true));
+    fromGallery.replaceWith(fromGallery.cloneNode(true));
+
     document.getElementById('from_camera').addEventListener('click',function(){
+        closeScanOptions();
         openCamera();
     });
 
     document.getElementById('from_gallery').addEventListener('click',function(){
+        closeScanOptions()
         openGallery();
     });
 
@@ -173,32 +187,163 @@ function onDeviceReady() {
 
 // Move functions outside so they are accessible
 function openCamera(){
+    if (!navigator.camera) {
+        showAlert('Camera plugin not available');
+        return;
+    }
     navigator.camera.getPicture(onSuccess, onFail, {
         quality: 70,
         destinationType: Camera.DestinationType.DATA_URL,
         sourceType: Camera.PictureSourceType.CAMERA,
         encodingType: Camera.EncodingType.JPEG,
         mediaType: Camera.MediaType.PICTURE,
-        correctOrientation: true
+        correctOrientation: true,
+        correctOrientation: true,
+        targetWidth: 1024,
+        targetHeight: 1024
     });
 }
 
 function openGallery(){
+    if (!navigator.camera) {
+        showAlert('Camera plugin not available');
+        return;
+    }
     navigator.camera.getPicture(onSuccess, onFail, {
         quality: 70,
         destinationType: Camera.DestinationType.DATA_URL,
         sourceType: Camera.PictureSourceType.PHOTOLIBRARY, // or SAVEDPHOTOALBUM
         encodingType: Camera.EncodingType.JPEG,
-        mediaType: Camera.MediaType.PICTURE
+        mediaType: Camera.MediaType.PICTURE,
+        correctOrientation: true,
+        targetWidth: 1024,
+        targetHeight: 1024
     });
 }
 
 function onSuccess(imageData) {
-    let img = document.createElement('img');
+    showAlert('Processing image...');
+    
+    // Create image element
+    const img = document.createElement('img');
     img.src = "data:image/jpeg;base64," + imageData;
-    img.style.width = "100%";
-    img.style.borderRadius = "8px";
-    document.querySelector('.main_content').appendChild(img);
+    
+    // Create Tesseract worker
+    Tesseract.createWorker()
+        .then(worker => {
+            return worker.loadLanguage('eng')
+                .then(() => worker.initialize('eng'))
+                .then(() => worker.recognize(img.src))
+                .then(({ data: { text } }) => {
+                    worker.terminate();
+                    
+                    // Extract information
+                    const extractedInfo = extractInformation(text);
+                    
+                    // Close scan options and show form
+                    closeScanOptions();
+                    showAddCardForm();
+                    
+                    // Populate form fields
+                    populateFormFields(extractedInfo);
+                });
+        })
+        .catch(error => {
+            console.error('OCR Error:', error);
+            showAlert('Error processing image: ' + error.message);
+        });
+}
+
+function extractInformation(text) {
+    const info = {
+        firstName: '',
+        lastName: '',
+        company: '',
+        title: '',
+        phones: [],
+        emails: [],
+        websites: [],
+        addresses: []
+    };
+
+    // Regular expressions for different fields
+    const patterns = {
+        name: /([A-Z][a-z]+(?:\s[A-Z][a-z]+)*)/,
+        email: /[a-zA-Z0-9._%+-]+@[a-zA-Z0-9.-]+\.[a-zA-Z]{2,}/g,
+        phone: /(?:[\+]?\d{1,3}[-\s]?)?\(?\d{3}\)?[-\s]?\d{3}[-\s]?\d{4}/g,
+        website: /(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}|https?:\/\/(?:www\.)?[a-zA-Z0-9][a-zA-Z0-9-]+[a-zA-Z0-9]\.[^\s]{2,}/g
+    };
+
+    // Extract name (assuming first line is name)
+    const lines = text.split('\n').filter(line => line.trim());
+    if (lines.length > 0) {
+        const nameParts = lines[0].trim().split(' ');
+        info.firstName = nameParts[0] || '';
+        info.lastName = nameParts.slice(1).join(' ') || '';
+    }
+
+    // Extract title (assuming second line is title)
+    if (lines.length > 1) {
+        info.title = lines[1].trim();
+    }
+
+    // Extract company (assuming third line is company)
+    if (lines.length > 2) {
+        info.company = lines[2].trim();
+    }
+
+    // Extract contact information
+    info.phones = text.match(patterns.phone) || [];
+    info.emails = text.match(patterns.email) || [];
+    info.websites = text.match(patterns.website) || [];
+
+    // Extract address (remaining lines that aren't matched above)
+    const addressLines = lines.slice(3).filter(line => {
+        return !line.match(patterns.email) && 
+               !line.match(patterns.phone) && 
+               !line.match(patterns.website);
+    });
+    info.addresses = [addressLines.join(' ')];
+
+    return info;
+}
+
+function populateFormFields(info) {
+    // Populate basic fields
+    document.querySelector('input[placeholder="First Name"]').value = info.firstName;
+    document.querySelector('input[placeholder="Last Name"]').value = info.lastName;
+    document.querySelector('input[placeholder="Company"]').value = info.company;
+    document.querySelector('input[placeholder="Title"]').value = info.title;
+
+    // Add phone numbers
+    info.phones.forEach(phone => {
+        addField('phone');
+        const lastField = document.querySelector('#phone-fields-container .dynamic-field:last-child');
+        lastField.querySelector('input').value = phone;
+    });
+
+    // Add emails
+    info.emails.forEach(email => {
+        addField('email');
+        const lastField = document.querySelector('#email-fields-container .dynamic-field:last-child');
+        lastField.querySelector('input').value = email;
+    });
+
+    // Add websites
+    info.websites.forEach(website => {
+        addField('website');
+        const lastField = document.querySelector('#website-fields-container .dynamic-field:last-child');
+        lastField.querySelector('input').value = website;
+    });
+
+    // Add addresses
+    info.addresses.forEach(address => {
+        if (address.trim()) {
+            addField('address');
+            const lastField = document.querySelector('#address-fields-container .dynamic-field:last-child');
+            lastField.querySelector('input').value = address;
+        }
+    });
 }
 
 function onFail(message) {
@@ -563,10 +708,10 @@ function createCardElement(card) {
     const div = document.createElement('div');
     div.className = 'card-preview';
     div.onclick = () => showCardDetails(card.id);
-    
+
     div.innerHTML = `
         <div class="card-image">
-            ${card.profileImage ? 
+            ${card.profileImage ?
                 `<img src="${card.profileImage}" alt="Profile">` :
                 `<div class="initial-circle">${card.firstName[0]}${card.lastName[0]}</div>`
             }
@@ -577,7 +722,7 @@ function createCardElement(card) {
             <p class="title">${card.title}</p>
         </div>
     `;
-    
+
     return div;
 }
 
@@ -587,6 +732,7 @@ function showCardDetails(cardId) {
             const card = results.rows.item(0);
             const detailView = document.createElement('div');
             detailView.className = 'card-details';
+
             detailView.innerHTML = `
                 <div class="details-header">
                     <button onclick="editCard(${card.id})" class="edit-btn">Edit</button>
@@ -595,27 +741,166 @@ function showCardDetails(cardId) {
                 </div>
                 <div class="details-content">
                     ${createDetailsContent(card)}
-                    ${createDigitalCard(card)}
+                    <div class="digital-card">
+                        <div class="digital-card-header">
+                            ${card.profileImage ?
+                                `<img src="${card.profileImage}" alt="Profile" class="digital-profile">` :
+                                `<div class="digital-profile">${card.firstName[0]}${card.lastName[0]}</div>`
+                            }
+                            <div class="digital-info">
+                                <div class="digital-name">${card.firstName} ${card.lastName}</div>
+                                <div class="digital-title">${card.title}</div>
+                                <div class="digital-company">${card.company}</div>
+                            </div>
+                        </div>
+                        <div class="digital-contact">
+                            ${JSON.parse(card.phones || '[]')[0] ? `
+                                <div class="digital-contact-item">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M6.62 10.79c1.44 2.83 3.76 5.15 6.59 6.59l2.2-2.2c.27-.27.67-.36 1.02-.24 1.12.37 2.33.57 3.57.57.55 0 1 .45 1 1V20c0 .55-.45 1-1 1-9.39 0-17-7.61-17-17 0-.55.45-1 1-1h3.5c.55 0 1 .45 1 1 0 1.25.2 2.45.57 3.57.11.35.03.74-.25 1.02l-2.2 2.2z"/>
+                                    </svg>
+                                    <span>${JSON.parse(card.phones)[0].value}</span>
+                                </div>
+                            ` : ''}
+                            ${JSON.parse(card.emails || '[]')[0] ? `
+                                <div class="digital-contact-item">
+                                    <svg class="icon" viewBox="0 0 24 24">
+                                        <path d="M20 4H4c-1.1 0-1.99.9-1.99 2L2 18c0 1.1.9 2 2 2h16c1.1 0 2-.9 2-2V6c0-1.1-.9-2-2-2zm0 4l-8 5-8-5V6l8 5 8-5v2z"/>
+                                    </svg>
+                                    <span>${JSON.parse(card.emails)[0].value}</span>
+                                </div>
+                            ` : ''}
+                        </div>
+                        <div class="share-container">
+                            <button onclick="shareCard(${card.id})" class="share-btn">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/>
+                                </svg>
+                                Share Contact
+                            </button>
+                            <button onclick="saveToContacts(${card.id})" class="save-cont-btn">
+                                <svg viewBox="0 0 24 24" width="20" height="20">
+                                    <path fill="currentColor" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10 10-4.48 10-10S17.52 2 12 2zm1 15h-2v-6h2v6zm0-8h-2V7h2v2z"/>
+                                </svg>
+                                Save to Contacts
+                            </button>
+                        </div>
+                    </div>
                 </div>
             `;
-            
-            // Add swipe back gesture
-            let touchStart = 0;
-            detailView.addEventListener('touchstart', e => {
-                touchStart = e.touches[0].clientX;
-            });
-            
-            detailView.addEventListener('touchmove', e => {
-                const diff = e.touches[0].clientX - touchStart;
-                if (diff > 50) {
-                    hideCardDetails();
-                }
-            });
-            
+
             document.querySelector('.app').appendChild(detailView);
             setTimeout(() => detailView.classList.add('active'), 10);
         });
     });
+}
+
+function shareCard(cardId) {
+    db.transaction((tx) => {
+        tx.executeSql('SELECT * FROM cards WHERE id = ?', [cardId], (tx, results) => {
+            const card = results.rows.item(0);
+            showQRModal(createCardData(card));
+        });
+    });
+}
+
+function createCardData(card) {
+    const phones = JSON.parse(card.phones || '[]');
+    const emails = JSON.parse(card.emails || '[]');
+    const websites = JSON.parse(card.websites || '[]');
+    const addresses = JSON.parse(card.addresses || '[]');
+    
+    // Create standard vCard format
+    const vCard = `BEGIN:VCARD
+VERSION:3.0
+N:${card.lastName};${card.firstName};;;
+FN:${card.firstName} ${card.lastName}
+ORG:${card.company}
+TITLE:${card.title}
+${phones.map(p => `TEL;TYPE=${p.type.toUpperCase()}:${p.value}`).join('\n')}
+${emails.map(e => `EMAIL;TYPE=${e.type.toUpperCase()}:${e.value}`).join('\n')}
+${websites.map(w => `URL:${w.value}`).join('\n')}
+${addresses.map(a => `ADR;TYPE=${a.type.toUpperCase()}:;;${a.value}`).join('\n')}
+END:VCARD`;
+
+    return vCard;
+}
+
+function createDetailsContent(card) {
+    const phones = JSON.parse(card.phones || '[]');
+    const emails = JSON.parse(card.emails || '[]');
+    const websites = JSON.parse(card.websites || '[]');
+    const addresses = JSON.parse(card.addresses || '[]');
+
+    return `
+        <div class="details-section">
+            ${card.company ? `<h3 class="company">${card.company}</h3>` : ''}
+            ${card.title ? `<p class="title">${card.title}</p>` : ''}
+            
+            <div class="share-container">
+                <button onclick="shareCard(${card.id})" class="share-btn">
+                    <svg viewBox="0 0 24 24" width="20" height="20">
+                        <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/>
+                    </svg>
+                    Share Contact
+                </button>
+            </div>
+
+            // ...existing contact sections...
+        </div>
+    `;
+}
+
+function showQRModal(data) {
+    const modal = document.createElement('div');
+    modal.className = 'qr-modal';
+    modal.id = 'qrModal';
+    
+    // Generate QR code with raw vCard data
+    const qr = qrcode(0, 'L');
+    qr.addData(data);
+    qr.make();
+    
+    modal.innerHTML = `
+        <div class="qr-content">
+            <div class="qr-header">
+                <h3>Scan to Share Contact</h3>
+                <button class="close-modal">×</button>
+            </div>
+            <div class="qr-code">${qr.createImgTag(5)}</div>
+            <p class="qr-instructions">Scan with your phone's camera or QR reader</p>
+            <p class="qr-instructions">Contact will be added to your address book</p>
+            <p class="qr-instructions">Tap anywhere outside to close QR code</p>
+        </div>
+    `;
+    
+    document.body.appendChild(modal);
+    
+    const qrBackHandler = (e) => {
+        e.preventDefault();
+        e.stopPropagation();
+        closeQRModal();
+        document.removeEventListener('backbutton', qrBackHandler);
+    };
+    
+    modal.querySelector('.close-modal').onclick = closeQRModal;
+    modal.onclick = (e) => {
+        if (e.target === modal) closeQRModal();
+    };
+    
+    document.addEventListener('backbutton', qrBackHandler);
+}
+
+function closeQRModal() {
+    const modal = document.getElementById('qrModal');
+    if (modal) {
+        modal.remove();
+    }
+}
+
+function handleQRModalBack(e) {
+    e.preventDefault();
+    closeQRModal();
 }
 
 function hideCardDetails() {
@@ -929,4 +1214,121 @@ function showAddCardForm() {
         saveBtn.onclick = saveCard;
         document.querySelector('.heading .title').textContent = 'Edit Card';
     }
+}
+
+function pickContact() {
+    navigator.contacts.pickContact(function(contact) {
+        const cardData = {
+            firstName: contact.name.givenName || '',
+            lastName: contact.name.familyName || '',
+            company: contact.organizations && contact.organizations[0] ? contact.organizations[0].name : '',
+            title: contact.organizations && contact.organizations[0] ? contact.organizations[0].title : '',
+            phones: contact.phoneNumbers ? contact.phoneNumbers.map(phone => ({
+                type: phone.type || 'mobile',
+                value: phone.value
+            })) : [],
+            emails: contact.emails ? contact.emails.map(email => ({
+                type: email.type || 'work',
+                value: email.value
+            })) : [],
+            addresses: contact.addresses ? contact.addresses.map(addr => ({
+                type: addr.type || 'work',
+                value: addr.formatted || addr.streetAddress
+            })) : []
+        };
+
+        showAddCardForm();
+        populateFormFields(cardData);
+    }, function(error) {
+        // showAlert('Failed to pick contact: ' + error);
+        if (error == 6){
+            showAlert('No contact selected ;)');
+        }
+    });
+}
+
+function saveToContacts(cardId) {
+    console.log('Saving contact:', cardId);
+    
+    if (!navigator.contacts) {
+        showAlert('Contacts plugin not available');
+        return;
+    }
+
+    db.transaction((tx) => {
+        tx.executeSql('SELECT * FROM cards WHERE id = ?', [cardId], (tx, results) => {
+            const card = results.rows.item(0);
+            console.log('Card data:', card);
+            
+            try {
+                const contact = navigator.contacts.create();
+                
+                // Basic info
+                contact.displayName = `${card.firstName} ${card.lastName}`;
+                contact.name = new ContactName(
+                    null,
+                    card.lastName,
+                    card.firstName,
+                    '',
+                    '',
+                    ''
+                );
+                
+                // Organization
+                if (card.company || card.title) {
+                    contact.organizations = [{
+                        type: 'work',
+                        name: card.company,
+                        title: card.title
+                    }];
+                }
+                
+                // Phone numbers
+                const phones = JSON.parse(card.phones || '[]');
+                if (phones.length > 0) {
+                    contact.phoneNumbers = phones.map(p => ({
+                        type: p.type,
+                        value: p.value,
+                        pref: false
+                    }));
+                }
+                
+                // Emails
+                const emails = JSON.parse(card.emails || '[]');
+                if (emails.length > 0) {
+                    contact.emails = emails.map(e => ({
+                        type: e.type,
+                        value: e.value,
+                        pref: false
+                    }));
+                }
+                
+                // Addresses
+                const addresses = JSON.parse(card.addresses || '[]');
+                if (addresses.length > 0) {
+                    contact.addresses = addresses.map(a => ({
+                        type: a.type,
+                        formatted: a.value,
+                        streetAddress: a.value
+                    }));
+                }
+
+                console.log('Saving contact:', contact);
+                
+                contact.save(
+                    () => {
+                        console.log('Contact saved successfully');
+                        showAlert('Contact saved to device');
+                    },
+                    (error) => {
+                        console.error('Save error:', error);
+                        showAlert('Failed to save contact: ' + error);
+                    }
+                );
+            } catch (error) {
+                console.error('Contact creation error:', error);
+                showAlert('Error creating contact: ' + error.message);
+            }
+        });
+    });
 }

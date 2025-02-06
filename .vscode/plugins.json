@@ -1,1 +1,1 @@
-{"plugins":["cordova-plugin-camera","cordova-sqlite-storage"]}
+{"plugins":["cordova-plugin-camera","cordova-sqlite-storage","cordova-plugin-file","cordova-plugin-photo-library"]}
