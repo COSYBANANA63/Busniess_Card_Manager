@@ -320,30 +320,28 @@ function populateFormFields(info) {
     info.phones.forEach(phone => {
         addField('phone');
         const lastField = document.querySelector('#phone-fields-container .dynamic-field:last-child');
-        lastField.querySelector('input').value = phone;
+        lastField.querySelector('input').value = phone.value;
     });
 
     // Add emails
     info.emails.forEach(email => {
         addField('email');
         const lastField = document.querySelector('#email-fields-container .dynamic-field:last-child');
-        lastField.querySelector('input').value = email;
+        lastField.querySelector('input').value = email.value;
     });
 
     // Add websites
     info.websites.forEach(website => {
         addField('website');
         const lastField = document.querySelector('#website-fields-container .dynamic-field:last-child');
-        lastField.querySelector('input').value = website;
+        lastField.querySelector('input').value = website.value;
     });
 
     // Add addresses
     info.addresses.forEach(address => {
-        if (address.trim()) {
             addField('address');
             const lastField = document.querySelector('#address-fields-container .dynamic-field:last-child');
-            lastField.querySelector('input').value = address;
-        }
+            lastField.querySelector('input').value = address.value; // Ensure value is accessed
     });
 }
 
@@ -486,7 +484,7 @@ function addField(type) {
         <span class="remove-field" onclick="removeField('${id}', '${type}')">−</span>
     `;
     
-    //Add the field to its specific container
+    // Add the field to its specific container
     container.appendChild(field);
     fieldCounts[type]++;
 }
@@ -634,13 +632,15 @@ function saveCard() {
     const company = document.querySelector('input[placeholder="Company"]').value;
     const title = document.querySelector('input[placeholder="Title"]').value;
     const profileImage = document.querySelector('.profile-image img')?.src || '';
-    const notes = document.querySelector('.note-input')?.value || '';
+    const notes = document.querySelector('.notes-input')?.value || '';
 
     // Collect field data
     const phones = collectFieldData('phone');
     const emails = collectFieldData('email');
     const websites = collectFieldData('website');
-    const addresses = collectFieldData('address');
+    const addresses = collectFieldData('address'); // Ensure addresses are collected
+
+    console.log('Collected Addresses:', addresses); // Debugging line to check collected addresses
 
     if (currentEditId) {
         // Update existing card
@@ -657,7 +657,7 @@ function saveCard() {
                 JSON.stringify(phones),
                 JSON.stringify(emails),
                 JSON.stringify(websites),
-                JSON.stringify(addresses),
+                JSON.stringify(addresses), // Ensure addresses are saved
                 notes
             ]);
         }, (error) => {
@@ -841,16 +841,60 @@ function createDetailsContent(card) {
             ${card.company ? `<h3 class="company">${card.company}</h3>` : ''}
             ${card.title ? `<p class="title">${card.title}</p>` : ''}
             
-            <div class="share-container">
-                <button onclick="shareCard(${card.id})" class="share-btn">
-                    <svg viewBox="0 0 24 24" width="20" height="20">
-                        <path fill="currentColor" d="M18 16.08c-.76 0-1.44.3-1.96.77L8.91 12.7c.05-.23.09-.46.09-.7s-.04-.47-.09-.7l7.05-4.11c.54.5 1.25.81 2.04.81 1.66 0 3-1.34 3-3s-1.34-3-3-3-3 1.34-3 3c0 .24.04.47.09.7L8.04 9.81C7.5 9.31 6.79 9 6 9c-1.66 0-3 1.34-3 3s1.34 3 3 3c.79 0 1.5-.31 2.04-.81l7.12 4.16c-.05.21-.08.43-.08.65 0 1.61 1.31 2.92 2.92 2.92s2.92-1.31 2.92-2.92c0-1.61-1.31-2.92-2.92-2.92z"/>
-                    </svg>
-                    Share Contact
-                </button>
-            </div>
+            ${phones.length ? `
+                <div class="contact-section">
+                    <h4>Phone Numbers</h4>
+                    ${phones.map(p => `
+                        <div class="contact-item">
+                            <span class="label">${p.type}:</span>
+                            <span class="value">${p.value}</span> <!-- Access the value property -->
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
 
-            // ...existing contact sections...
+            ${emails.length ? `
+                <div class="contact-section">
+                    <h4>Email Addresses</h4>
+                    ${emails.map(e => `
+                        <div class="contact-item">
+                            <span class="label">${e.type}:</span>
+                            <span class="value">${e.value}</span> <!-- Access the value property -->
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${websites.length ? `
+                <div class="contact-section">
+                    <h4>Websites</h4>
+                    ${websites.map(w => `
+                        <div class="contact-item">
+                            <span class="label">${w.type}:</span>
+                            <span class="value">${w.value}</span> <!-- Access the value property -->
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${addresses.length ? `
+                <div class="contact-section">
+                    <h4>Addresses</h4>
+                    ${addresses.map(a => `
+                        <div class="contact-item">
+                            <span class="label">${a.type}:</span>
+                            <span class="value">${a.value}</span> <!-- Access the value property -->
+                        </div>
+                    `).join('')}
+                </div>
+            ` : ''}
+
+            ${card.notes ? `
+                <div class="notes-section">
+                    <h4>Notes</h4>
+                    <p>${card.notes}</p>
+                </div>
+            ` : ''}
         </div>
     `;
 }
@@ -1222,31 +1266,40 @@ function showAddCardForm() {
 
 function pickContact() {
     navigator.contacts.pickContact(function(contact) {
-        const cardData = {
-            firstName: contact.name.givenName || '',
-            lastName: contact.name.familyName || '',
-            company: contact.organizations && contact.organizations[0] ? contact.organizations[0].name : '',
-            title: contact.organizations && contact.organizations[0] ? contact.organizations[0].title : '',
-            phones: contact.phoneNumbers ? contact.phoneNumbers.map(phone => ({
-                type: phone.type || 'mobile',
-                value: phone.value
-            })) : [],
-            emails: contact.emails ? contact.emails.map(email => ({
-                type: email.type || 'work',
-                value: email.value
-            })) : [],
-            addresses: contact.addresses ? contact.addresses.map(addr => ({
-                type: addr.type || 'work',
-                value: addr.formatted || addr.streetAddress
-            })) : []
-        };
+        try {
+            const cardData = {
+                firstName: contact.name.givenName || '',
+                lastName: contact.name.familyName || '',
+                company: (contact.organizations && contact.organizations.length > 0) ? contact.organizations[0].name : '',
+                title: (contact.organizations && contact.organizations.length > 0) ? contact.organizations[0].title : '',
+                phones: contact.phoneNumbers ? contact.phoneNumbers.map(phone => ({
+                    type: phone.type || 'mobile',
+                    value: phone.value
+                })) : [],
+                emails: contact.emails ? contact.emails.map(email => ({
+                    type: email.type || 'work',
+                    value: email.value
+                })) : [],
+                addresses: contact.addresses ? contact.addresses.map(addr => ({
+                    type: addr.type || 'work',
+                    value: addr.formatted || addr.streetAddress // Ensure correct property is accessed
+                })) : []
+            };
 
-        showAddCardForm();
-        populateFormFields(cardData);
+            console.log('Card Data:', cardData); // Debugging line to check extracted data
+
+            showAddCardForm();
+            populateFormFields(cardData);
+        } catch (error) {
+            console.error('Error processing contact:', error);
+            showAlert('Failed to process contact');
+        }
     }, function(error) {
-        // showAlert('Failed to pick contact: ' + error);
-        if (error == 6){
+        if (error == 6) {
             showAlert('No contact selected ;)');
+        } else {
+            console.error('Error picking contact:', error);
+            showAlert('Failed to pick contact: ' + error);
         }
     });
 }

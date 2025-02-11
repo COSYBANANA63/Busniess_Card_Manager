@@ -1,1 +1,1 @@
-{"plugins":["cordova-plugin-camera","cordova-sqlite-storage","cordova-plugin-file","cordova-plugin-photo-library","cordova-plugin-compat","@red-mobile/cordova-plugin-barcodescanner","cordova-plugin-contacts"]}
+{"plugins":["cordova-plugin-camera","cordova-sqlite-storage","cordova-plugin-file","cordova-plugin-photo-library","cordova-plugin-compat","@red-mobile/cordova-plugin-barcodescanner","cordova-plugin-contacts","cordova-plugin-splashscreen"]}
